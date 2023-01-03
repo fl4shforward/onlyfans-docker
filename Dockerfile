@@ -16,4 +16,4 @@ RUN /usr/local/share/pypoetry/bin/poetry install --no-dev
 
 COPY ./OnlyFans .
 
-CMD [ "/usr/local/share/pypoetry/bin/poetry", "run", "python", "./start_ofd.py" ]
+CMD [ "/usr/local/share/pypoetry/bin/poetry", "run", "python", "./start_us.py" ]
