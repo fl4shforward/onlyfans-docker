@@ -17,7 +17,7 @@ jobs:
         submodules: true
 
     - name: Build and Publish latest Docker image
-      uses: fl4shforward/gp-docker-action@v1.2.1
+      uses: fl4shforward/gp-docker-action@v1.5.1
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }} # Provide GITHUB_TOKEN to login into the GitHub Packages
         image-name: fl4shforward/onlyfans # Provide only Docker image name, tag will be automatically set to latest
