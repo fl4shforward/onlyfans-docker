@@ -12,6 +12,6 @@ ENV POETRY_VIRTUALENVS_CREATE=false
 RUN ["/bin/bash", "-c", "set -o pipefail && curl -sSL https://install.python-poetry.org | python3 -"]
 
 COPY ./OnlyFans .
-RUN python ./update.py && /usr/local/share/pypoetry/bin/poetry install --without dev
+RUN python updater.py && /usr/local/share/pypoetry/bin/poetry install --without dev
 
 CMD [ "/usr/local/share/pypoetry/bin/poetry", "run", "python", "./start_us.py" ]
