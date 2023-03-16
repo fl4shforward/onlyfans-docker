@@ -15,6 +15,6 @@ RUN ["/bin/bash", "-c", "set -o pipefail && curl -sSL https://install.python-poe
 
 COPY ./OnlyFans .
 RUN /usr/local/share/pypoetry/bin/poetry install --without dev
-RUN export PATH="/usr/local/share/pypoetry/bin:$PATH" && python3 /usr/src/app/updater.py
+RUN export PATH="/usr/local/share/pypoetry/bin:$PATH" && poetry update
 
 CMD [ "/usr/local/share/pypoetry/bin/poetry", "run", "python", "./start_us.py" ]
