@@ -1,3 +1,8 @@
+# NOTICE
+Upstream is discontinued so I'm archiving too, obviously.
+
+[DIGITALCRIMINALS explains why here.](https://github.com/DIGITALCRIMINALS/UltimaScraper/issues/983#issuecomment-1544000569)
+
 # onlyfans-docker
 
 Dockerized [DIGITALCRIMINALS/OnlyFans](https://github.com/DIGITALCRIMINALS/OnlyFans). Should autobuild new image on submodule update.
