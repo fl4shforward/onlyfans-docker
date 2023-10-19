@@ -12,7 +12,7 @@ jobs:
     if: github.ref == 'refs/heads/main' # Running this job only for master branch
 
     steps:
-    - uses: actions/checkout@v2 # Checking out the repo
+    - uses: actions/checkout@v4 # Checking out the repo
       with:
         submodules: true
 
