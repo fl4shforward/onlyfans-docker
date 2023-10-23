@@ -1,16 +1,12 @@
-# NOTICE
-Upstream is discontinued so I'm archiving too, obviously.
-
-[DIGITALCRIMINALS explains why here.](https://github.com/DIGITALCRIMINALS/UltimaScraper/issues/983#issuecomment-1544000569)
-
 # onlyfans-docker
 
-Dockerized [DIGITALCRIMINALS/OnlyFans](https://github.com/DIGITALCRIMINALS/OnlyFans). Should autobuild new image on submodule update.
+Dockerized [DIGITALCRIMINAL/UltimaScraper](https://github.com/DIGITALCRIMINAL/UltimaScraper). Should autobuild new image on submodule update.
 
 Please refer to his repo for config instructions.
 
 ## Sample docker-compose.yml
-```
+
+```yml
 version: '3.8'
 services:
   onlyfans:
