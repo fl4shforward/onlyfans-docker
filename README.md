@@ -1,6 +1,6 @@
 # onlyfans-docker
 
-Dockerized [DIGITALCRIMINAL/UltimaScraper](https://github.com/DIGITALCRIMINAL/UltimaScraper). Should autobuild new image on submodule update.
+Dockerized [UltimaHoarder/UltimaScraper](https://github.com/UltimaHoarder/UltimaScraper). Should autobuild new image on submodule update.
 
 Please refer to his repo for config instructions.
 
