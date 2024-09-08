@@ -47,11 +47,11 @@ class SiteContent:
         if "files" in media_item:
             if (
                 "preview" in media_item["files"]
-                and "url" in media_item["files"]["preview"]
+                and "url" in media_item["files"]["full"]
             ):
-                preview_url = media_item["files"]["preview"]["url"]
+                preview_url = media_item["files"]["full"]["url"]
         else:
-            preview_url = media_item["preview"]
+            preview_url = media_item["full"]
             return urlparse(preview_url) if preview_url else None
 
     def get_author(self):
