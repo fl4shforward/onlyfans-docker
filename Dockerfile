@@ -16,5 +16,6 @@ RUN ["/bin/bash", "-c", "set -o pipefail && curl -sSL https://install.python-poe
 COPY ./UltimaScraper .
 RUN /usr/local/share/pypoetry/bin/poetry update
 RUN sed -i '/if asset.urls:/a\                if asset.__content_metadata__.__soft__.get_author().id == authed.id:\n                    continue' /usr/local/lib/python3.10/site-packages/ultima_scraper_collection/managers/datascraper_manager/datascrapers/onlyfans.py
+COPY ./__init__.py /usr/local/lib/python3.10/site-packages/ultima_scraper_api/apis/onlyfans
 
 CMD [ "/usr/local/share/pypoetry/bin/poetry", "run", "python", "./start_us.py" ]
