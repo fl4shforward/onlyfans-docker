@@ -81,7 +81,7 @@ jobs:
         run: |
           echo "Submodule updated to the latest commit at path: ${{ env.submodule_path }}"
 
-          - name: No update
-          if: env.submodule_updated == 'false'
-          run: |
-            echo "No update for: ${{ env.submodule_path }}"
+      - name: No update
+        if: env.submodule_updated == 'false'
+        run: |
+          echo "No update for: ${{ env.submodule_path }}"
