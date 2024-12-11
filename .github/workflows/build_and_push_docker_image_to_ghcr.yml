@@ -9,13 +9,13 @@ on:
         description: 'Custom tag for the Docker image'
         required: true
       tagAsLatest:
-          description: 'Tag as latest ?'
-          required: true
-          default: 'false'
-          type: choice
-          options:
-            - 'true'
-            - 'false'
+        description: 'Tag as latest ?'
+        required: true
+        default: 'false'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
 
 jobs:
   build_docker:
@@ -41,12 +41,21 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push Docker image to GHCR
+      - name: Build and push only custom tag
+        if: ${{ github.event.inputs.tagAsLatest == 'false' || github.event.client_payload.tag_as_latest == 'false' }}
         uses: docker/build-push-action@v6
         with:
           context: .
           push: true
           tags: |
             ghcr.io/${{ github.repository_owner }}/onlyfans:${{ github.event.inputs.user_defined_tag != '' && github.event.inputs.user_defined_tag || github.event.client_payload.latest_tag }}
-            ${{ github.event.inputs.tagAsLatest == 'true' || github.event.client_payload.tag_as_latest == 'true' && 'ghcr.io/${{ github.repository_owner }}/onlyfans:latest' || '' }}
-  
+
+      - name: Build and push latest+custom tag
+        if: ${{ github.event.inputs.tagAsLatest == 'true' || github.event.client_payload.tag_as_latest == 'true' }}
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/onlyfans:${{ github.event.inputs.user_defined_tag != '' && github.event.inputs.user_defined_tag || github.event.client_payload.latest_tag }}
+            ghcr.io/${{ github.repository_owner }}/onlyfans:latest
