@@ -39,8 +39,22 @@ jobs:
           git pull --rebase origin "$DEFAULT_BRANCH"
           SHORT_COMMIT=$(git rev-parse --short HEAD)
           echo "latest_tag=$SHORT_COMMIT" >> $GITHUB_ENV
+
           git submodule update --remote --merge
+
+          STATUS=$(git status --porcelain)
+          if [[ -z "$STATUS" ]]; then
+            echo "No changes detected in submodule. Skipping commit."
+            echo "submodule_updated=false" >> $GITHUB_ENV
+          else
+            echo "Submodule updated. Proceeding with commit."
+            echo "submodule_updated=true" >> $GITHUB_ENV
+          fi
           cd ..
+
+      - name: Commit and push if submodule was updated
+        if: env.submodule_updated == 'true'
+        run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add ${{ env.submodule_path }}
@@ -48,6 +62,7 @@ jobs:
           git push origin ${{ github.ref_name }}
 
       - name: Trigger Docker build workflow
+        if: env.submodule_updated == 'true'
         run: |
           curl -X POST \
           -H "Accept: application/vnd.github+json" \
@@ -62,5 +77,11 @@ jobs:
               }'
 
       - name: Display updated submodule path
+        if: env.submodule_updated == 'true'
         run: |
           echo "Submodule updated to the latest commit at path: ${{ env.submodule_path }}"
+
+          - name: No update
+          if: env.submodule_updated == 'false'
+          run: |
+            echo "No update for: ${{ env.submodule_path }}"
