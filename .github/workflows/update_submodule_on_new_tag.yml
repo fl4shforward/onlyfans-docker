@@ -1,0 +1,83 @@
+name: Update Submodule on New Tag
+
+on:
+  workflow_dispatch:
+    inputs:
+      manual_tag:
+        description: "Specify a tag to force checkout"
+        required: false
+        default: ""
+      tagAsLatest:
+        description: 'Tag as latest ?'
+        required: true
+        default: 'true'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+
+jobs:
+  update_submodule_on_new_tag:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Get submodule path from .gitmodules
+        id: get_submodule_path
+        run: |
+          SUBMODULE_PATH=$(grep -oP '(?<=path = ).*' .gitmodules | head -n 1)
+          echo "submodule_path=$SUBMODULE_PATH" >> $GITHUB_ENV
+
+      - name: Get latest tag from submodule origin
+        id: latest_tag
+        run: |
+          cd ${{ env.submodule_path }}
+          git fetch --tags
+          LATEST_TAG=$(git describe --tags $(git rev-list --tags --max-count=1))
+          echo "latest_tag=$LATEST_TAG" >> $GITHUB_ENV
+
+      - name: Check current submodule tag (if any)
+        id: current_tag
+        run: |
+          cd ${{ env.submodule_path }}
+          CURRENT_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "no-tag")
+          echo "current_tag=$CURRENT_TAG" >> $GITHUB_ENV
+
+      - name: Determine tag to use
+        id: determine_tag
+        run: |
+          TAG_TO_USE="${{ github.event.inputs.manual_tag || env.latest_tag }}"
+          echo "tag_to_use=$TAG_TO_USE" >> $GITHUB_ENV
+
+      - name: Update submodule to specified or latest tag
+        if: ${{ env.tag_to_use != env.current_tag && env.current_tag != 'no-tag' || github.event.inputs.manual_tag != '' }}
+        run: |
+          cd ${{ env.submodule_path }}
+          git checkout ${{ env.tag_to_use }}
+          cd ..
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ${{ env.submodule_path }}
+          git commit -m "Update submodule to tag ${{ env.tag_to_use }}"
+          git push origin ${{ github.ref_name }}
+          echo "trigger_build=true" >> $GITHUB_ENV
+
+      - name: Trigger Docker build workflow
+        if: ${{ env.tag_to_use != env.current_tag && (env.current_tag != 'no-tag' || env.trigger_build == 'true') }}
+        run: |
+          curl -X POST \
+          -H "Accept: application/vnd.github+json" \
+          -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          https://api.github.com/repos/${{ github.repository }}/dispatches \
+          -d '{
+                "event_type": "trigger_docker_build",
+                "client_payload": {
+                  "latest_tag": "${{ env.tag_to_use }}",
+                  "current_tag": "${{ env.current_tag }}",
+                  "tag_as_latest": "${{ github.event.inputs.tagAsLatest }}"
+                }
+              }'

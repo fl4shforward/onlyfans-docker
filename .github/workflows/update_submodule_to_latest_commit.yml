@@ -1,0 +1,66 @@
+name: Update Submodule to Latest Commit
+
+on:
+  schedule:
+    - cron: '0 5 * * *'
+  workflow_dispatch:
+    inputs:
+      tagAsLatest:
+          description: 'Tag as latest ?'
+          required: true
+          default: 'true'
+          type: choice
+          options:
+            - 'true'
+            - 'false'
+
+jobs:
+  update_latest_submodule:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Get submodule path from .gitmodules
+        id: get_submodule_path
+        run: |
+          SUBMODULE_PATH=$(grep -oP '(?<=path = ).*' .gitmodules | head -n 1)
+          echo "submodule_path=$SUBMODULE_PATH" >> $GITHUB_ENV
+
+      - name: Update submodule to latest commit
+        id: update_submodule
+        run: |
+          cd ${{ env.submodule_path }}
+          DEFAULT_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD | sed 's|^refs/remotes/origin/||')
+          git checkout "$DEFAULT_BRANCH"
+          git pull --rebase origin "$DEFAULT_BRANCH"
+          SHORT_COMMIT=$(git rev-parse --short HEAD)
+          echo "latest_tag=$SHORT_COMMIT" >> $GITHUB_ENV
+          git submodule update --remote --merge
+          cd ..
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ${{ env.submodule_path }}
+          git commit -m "Update submodule to the latest commit"
+          git push origin ${{ github.ref_name }}
+
+      - name: Trigger Docker build workflow
+        run: |
+          curl -X POST \
+          -H "Accept: application/vnd.github+json" \
+          -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          https://api.github.com/repos/${{ github.repository }}/dispatches \
+          -d '{
+                "event_type": "trigger_docker_build",
+                "client_payload": {
+                  "latest_tag": "${{ env.latest_tag }}",
+                  "tag_as_latest": "${{ github.event.inputs.tagAsLatest }}"
+                }
+              }'
+
+      - name: Display updated submodule path
+        run: |
+          echo "Submodule updated to the latest commit at path: ${{ env.submodule_path }}"
