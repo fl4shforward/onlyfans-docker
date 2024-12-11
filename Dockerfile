@@ -1,11 +1,5 @@
 FROM python:3.11-alpine
 
-# RUN apt-get update && apt-get install -y \
-#   curl \
-#   gcc \
-#   libpq-dev \
-#   && rm -rf /var/lib/apt/lists/*
-
 RUN apk add --no-cache \
   curl \
   sed \
